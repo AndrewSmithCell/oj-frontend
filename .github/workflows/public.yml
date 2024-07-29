@@ -1,0 +1,46 @@
+name: Create Archive
+on: 
+  workflow_dispatch:
+    inputs:
+      tags:
+        description: 'tags to create build'
+jobs:
+  build:
+    runs-on: windows-latest
+    permissions: write-all
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: main
+    - name: Setup node
+      uses: actions/setup-node@v4
+      with:
+        node-version: 18
+    - name: install pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: "9.1.1"
+    - name: pnpm install
+      run: |
+        pnpm store path
+        pnpm install
+        pnpm install @dnd-kit/core @dnd-kit/sortable @dnd-kit/utilities @headlessui/react @heroicons/react @mui/utils @react-spring/web @tailwindcss/line-clamp @types/react-infinite-scroller attr-accept classnames crypto-js date-fns events file-selector framer-motion html-to-image js-base64 lodash prop-types re-resizable react react-colorful react-dom react-draggable react-hook-form react-indiana-drag-scroll react-infinite-scroller react-konva react-router-dom react-tooltip sass scroll-into-view-if-needed stackblur-canvas twgl.js use-async-effect uuid vite-plugin-svgr @tailwindcss/nesting, @types/crypto-js @types/events @types/lodash @types/prop-types @types/react @types/react-dom @types/uuid @typescript-eslint/eslint-plugin @typescript-eslint/parser @vitejs/plugin-react autoprefixer dotenv eslint eslint-plugin-react-refresh postcss postcss-nested tailwindcss typescript vite codemirror echarts highlight.js react-highlight react-codemirror2 react-github-calendar 
+    - name: Archive Release source
+      uses: thedoctor0/zip-release@0.7.5
+      with:
+        type: '7z'
+        filename: 'release.7z'
+        exclusions: node_modules
+    - name: Archive Release packages
+      uses: thedoctor0/zip-release@0.7.5
+      with:
+        type: '7z'
+        filename: 'packages.7z'    
+        path: 'D:\.pnpm-store'
+    - name: create release and upload assets
+      uses: softprops/action-gh-release@v2
+      with:
+        files: |
+          release.7z
+          packages.7z
+        tag_name: ${{ github.event.inputs.tags }}
