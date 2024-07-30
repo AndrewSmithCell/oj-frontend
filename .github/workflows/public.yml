@@ -32,15 +32,18 @@ jobs:
         filename: 'release.7z'
         exclusions: node_modules
     - name: Archive Release packages
-      uses: thedoctor0/zip-release@0.7.5
-      with:
-        type: '7z'
-        filename: 'packages.7z'    
-        path: 'D:\.pnpm-store'
+      shell: bash
+      run: |
+        "/c/Program Files/7-Zip/7z.exe" a -m0=lzma2 -mx t1.7z "D:\.pnpm-store"
+    - name: Archive Release cache
+      shell: bash
+      run: |
+        "/c/Program Files/7-Zip/7z.exe" a -m0=lzma2 -mx t2.7z "C:\Users\runneradmin\AppData\Local\pnpm-cache"
     - name: create release and upload assets
       uses: softprops/action-gh-release@v2
       with:
         files: |
           release.7z
-          packages.7z
+          t1.7z
+          t2.7z
         tag_name: ${{ github.event.inputs.tags }}
